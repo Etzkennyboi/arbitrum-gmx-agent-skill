@@ -1,49 +1,64 @@
 # arbitrum-gmx-agent-skill
 
-A production-grade Claude Code Skill for building AI agents that trade and analyze GMX V2 perpetuals on Arbitrum One.
+[![ArbiLink Bounty](https://img.shields.io/badge/ArbiLink-Agentic%20Bounty-brightgreen)](https://arbitrum.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org)
+[![ethers.js v6](https://img.shields.io/badge/ethers.js-v6-blue)](https://docs.ethers.org/v6)
 
-> **Not a standalone app.** This is a knowledge package that installs to `~/.claude/skills/` for Claude Code to read at session start.
+> **Give any AI agent full GMX V2 trading capabilities on Arbitrum One** — the largest perpetuals DEX on Arbitrum with $500M+ TVL.
 
-## What It Does
+🚀 **Live Demo:** Deploy your own below
 
-✅ Read live Chainlink oracle prices for ETH, BTC, ARB, SOL, LINK on Arbitrum  
-✅ Query GMX V2 market data — open interest, funding rates, pool stats  
-✅ Generate correct code to open and close leveraged long/short perpetual positions  
-✅ Monitor positions for liquidation risk and generate alert logic  
-✅ Analyze markets and produce trading signal logic  
-✅ Register agent identity on the ArbiLink on-chain registry  
-✅ Deploy trading agents to Railway with full environment config  
+## 🎯 What This Skill Does
 
-## Installation
+A production-ready **agent skill** (Node.js module + HTTP API) that enables AI agents to:
+
+- 📊 **Read Live Prices** — Chainlink price feeds (ETH, BTC, ARB, SOL, LINK, USDC)
+- 📈 **Analyze Markets** — Real-time open interest, funding rates, OI skew
+- 🔄 **Trade** — Open/close leveraged long/short perpetual positions
+- 🛡️ **Monitor** — Real-time liquidation risk tracking with webhook alerts
+- 🏊 **Pool Analysis** — GM liquidity pool TVL and utilization stats
+- 🧠 **Strategy Signals** — AI-powered market analysis (funding, OI imbalance, utilization)
+- 🆔 **Identity** — Register agent on Arbitrum identity registry  
+
+## ⚡ Quick Start (5 Minutes)
+
+### 1. Clone & Install
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/etzkennyboi/arbitrum-gmx-agent-skill/main/install.sh)
+git clone https://github.com/your-org/arbitrum-gmx-agent-skill.git
+cd arbitrum-gmx-agent-skill
+npm install
 ```
 
-Or manually:
+### 2. Configure Wallet
 
 ```bash
-mkdir -p ~/.claude/skills
-cd ~/.claude/skills
-git clone https://github.com/etzkennyboi/arbitrum-gmx-agent-skill.git
+cp .env.example .env
+# Edit .env — add your AGENT_WALLET_PRIVATE_KEY (optional for read-only operations)
 ```
 
-After installation, **start a new Claude Code session** and ask:
+### 3. Test (Read-Only)
 
+```bash
+npm test
+# ✅ 9/10 tests pass (1 skipped without wallet)
 ```
-"Get current funding rates on GMX Arbitrum"
-"Build a bot that opens a 5x long on ETH"
-"Register my agent on the ArbiLink registry"
+
+### 4. Start Server
+
+```bash
+npm start
+# 🚀 Server running at http://localhost:3000
+# 📋 View API: http://localhost:3000/
 ```
 
-## Quick Start
+### 5. Register Agent (Optional)
 
-Once the skill is installed, Claude Code will:
-
-1. **Read prices** from Chainlink with no setup required
-2. **Query market data** from GMX DataStore (read-only, no wallet)
-3. **Build trading scripts** with the correct createOrder struct shape
-4. **Deploy to Railway** with environment configuration
+```bash
+npm run register
+# 🆔 Agent registered on Arbitrum Sepolia — saves AGENT_ID to .env
+```
 
 ## Technology Stack
 

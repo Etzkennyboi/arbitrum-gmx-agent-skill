@@ -1,0 +1,35 @@
+{
+  "name": "arbitrum-gmx-agent-skill",
+  "version": "1.0.0",
+  "description": "AI agent skill for GMX V2 perpetuals trading on Arbitrum One — trade, analyze, monitor, and manage positions",
+  "main": "index.js",
+  "scripts": {
+    "start": "node agent/server.js",
+    "dev": "nodemon agent/server.js",
+    "register": "node scripts/register-agent.js",
+    "test": "node test/run.js"
+  },
+  "keywords": [
+    "arbitrum",
+    "gmx",
+    "perpetuals",
+    "defi",
+    "ai-agent",
+    "skill",
+    "trading",
+    "arbilink"
+  ],
+  "dependencies": {
+    "ethers": "^6.13.0",
+    "express": "^4.21.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
+}
