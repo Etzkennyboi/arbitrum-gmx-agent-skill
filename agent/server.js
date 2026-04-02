@@ -40,6 +40,13 @@ const {
   // Identity
   registerAgent,
   getAgentInfo,
+
+  // Liquidation Hunter
+  checkLiquidatable,
+  calcProfit,
+  findOpportunities,
+  simulateLiquidation,
+  executeLiquidation,
 } = require('../index')
 
 const app = express()
@@ -404,6 +411,116 @@ app.post('/identity/register', async (req, res) => {
       process.env.AGENT_ENDPOINT,
       network || 'sepolia'
     )
+
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ============================================================
+// LIQUIDATION HUNTER ENDPOINTS (6 new)
+// ============================================================
+
+/**
+ * GET /liquidation/check/:account — Check if account is liquidatable on Aave V3
+ */
+app.get('/liquidation/check/:account', async (req, res) => {
+  try {
+    const result = await checkLiquidatable(req.params.account)
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+/**
+ * POST /liquidation/calculate — Calculate liquidation profit
+ * Body: { debtAsset, debtAmount, collateralAsset, collateralAmount }
+ */
+app.post('/liquidation/calculate', async (req, res) => {
+  try {
+    const { debtAsset, debtAmount, collateralAsset, collateralAmount } = req.body
+
+    if (!debtAsset || !debtAmount || !collateralAsset || !collateralAmount) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    const result = await calcProfit({
+      debtAsset,
+      debtAmount,
+      collateralAsset,
+      collateralAmount,
+    })
+
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+/**
+ * GET /liquidation/opportunities — Scan for liquidation opportunities
+ */
+app.get('/liquidation/opportunities', async (req, res) => {
+  try {
+    const result = await findOpportunities()
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+/**
+ * POST /liquidation/simulate — Simulate liquidation (dry-run)
+ * Body: { targetAccount, debtAsset, collateralAsset, debtAmount }
+ */
+app.post('/liquidation/simulate', async (req, res) => {
+  try {
+    const { targetAccount, debtAsset, collateralAsset, debtAmount } = req.body
+
+    if (!targetAccount || !debtAsset || !collateralAsset || !debtAmount) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    const result = await simulateLiquidation({
+      targetAccount,
+      debtAsset,
+      collateralAsset,
+      debtAmount,
+    })
+
+    res.json(result)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+/**
+ * POST /liquidation/execute — Execute liquidation (REAL MONEY)
+ * Body: { targetAccount, debtAsset, collateralAsset, debtAmount }
+ */
+app.post('/liquidation/execute', async (req, res) => {
+  try {
+    const { targetAccount, debtAsset, collateralAsset, debtAmount } = req.body
+
+    if (!targetAccount || !debtAsset || !collateralAsset || !debtAmount) {
+      return res.status(400).json({ error: 'Missing required fields' })
+    }
+
+    if (!process.env.AGENT_WALLET_PRIVATE_KEY) {
+      return res.status(400).json({ error: 'AGENT_WALLET_PRIVATE_KEY not set in .env' })
+    }
+
+    console.warn('⚠️ LIQUIDATION EXECUTION REQUESTED')
+    console.warn(`Target: ${targetAccount}`)
+
+    const result = await executeLiquidation({
+      targetAccount,
+      debtAsset,
+      collateralAsset,
+      debtAmount,
+    })
 
     res.json(result)
   } catch (err) {

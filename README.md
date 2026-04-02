@@ -1,23 +1,38 @@
-# arbitrum-gmx-agent-skill
+# arbitrum-integrated-agent-skills
 
 [![ArbiLink Bounty](https://img.shields.io/badge/ArbiLink-Agentic%20Bounty-brightgreen)](https://arbitrum.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js 18+](https://img.shields.io/badge/Node.js-18%2B-green)](https://nodejs.org)
 [![ethers.js v6](https://img.shields.io/badge/ethers.js-v6-blue)](https://docs.ethers.org/v6)
 
-> **Give any AI agent full GMX V2 trading capabilities on Arbitrum One** — the largest perpetuals DEX on Arbitrum with $500M+ TVL.
+> **Two powerful AI agent skills for Arbitrum:** GMX V2 Trading + Liquidation Hunter
 
-🚀 **Live Demo:** Deploy your own below
+**Skill 1 — GMX V2 Agent:** Trade perpetuals, analyze markets, monitor liquidations  
+**Skill 2 — Liquidation Hunter:** Detect + execute profitable liquidations on Aave V3
+
+🚀 **Live:** https://arbitrum-agent-skills.railway.app
 
 ## 🎯 What This Skill Does
 
-A production-ready **agent skill** (Node.js module + HTTP API) that enables AI agents to:
+### Skill 1: GMX V2 Trading Agent
 
-- 📊 **Read Live Prices** — Chainlink price feeds (ETH, BTC, ARB, SOL, LINK, USDC)
-- 📈 **Analyze Markets** — Real-time open interest, funding rates, OI skew
+A production-ready **agent skill** that enables AI agents to:
+
+- 📊 **Read Live Prices** — Chainlink price feeds (6 feeds: ETH, BTC, ARB, SOL, LINK, USDC)
+- 📈 **Analyze Markets** — Real-time open interest, funding rates, OI skew, pool TVL
 - 🔄 **Trade** — Open/close leveraged long/short perpetual positions
 - 🛡️ **Monitor** — Real-time liquidation risk tracking with webhook alerts
-- 🏊 **Pool Analysis** — GM liquidity pool TVL and utilization stats
+- 🏊 **Pool Analysis** — GM liquidity pool stats ($2.88T TVL)
+
+### Skill 2: Liquidation Hunter
+
+A revenue-generating **agent skill** for:
+
+- 🔍 **Detection** — Find liquidation opportunities on Aave V3 in real-time
+- 💰 **Profit Calculation** — Exact return accounting for gas, bonuses, slippage
+- ⚡ **Execution** — Flash loan + atomic liquidation combo
+- 📊 **Monitoring** — Track health factors continuously
+- 💾 **Analytics** — Liquidation history and cumulative profits
 - 🧠 **Strategy Signals** — AI-powered market analysis (funding, OI imbalance, utilization)
 - 🆔 **Identity** — Register agent on Arbitrum identity registry  
 
@@ -137,8 +152,113 @@ async function getPrice(pair) {
 console.log(`ETH/USD: $${await getPrice("ETH/USD")}`)
 ```
 
+## Usage Examples
+
+### Use GMX V2 Trading Skill
+
+```javascript
+const skill = require('arbitrum-integrated-agent-skills')
+
+// Read prices
+const ethPrice = await skill.getPrice('ETH')
+const allPrices = await skill.getAllPrices()
+
+// Analyze markets
+const strategy = await skill.analyzeMarket('ETH/USD')
+console.log(strategy.recommendation) // 'LEAN_LONG' | 'LEAN_SHORT' | 'NEUTRAL'
+
+// Open leveraged position
+const result = await skill.goLong({
+  privateKey: process.env.AGENT_WALLET_PRIVATE_KEY,
+  market: 'ETH/USD',
+  collateralUSDC: 100,
+  leverage: 5,
+})
+
+// Monitor liquidation risk
+skill.startMonitoring({
+  walletAddress: '0x...',
+  market: 'ETH/USD',
+  isLong: true,
+  liquidationThreshold: 10,
+  webhookUrl: 'https://your-webhook.com/alert',
+})
+```
+
+### Use Liquidation Hunter Skill
+
+```javascript
+const skill = require('arbitrum-integrated-agent-skills')
+
+// Find liquidation opportunities
+const opportunities = await skill.findOpportunities()
+console.log(`Found ${opportunities.length} opportunities`)
+
+// Check if specific account is liquidatable
+const isLiquidatable = await skill.checkLiquidatable('0x...')
+
+// Calculate exact profit before executing
+const profit = await skill.calcProfit({
+  debtAsset: '0x...',
+  debtAmount: ethers.parseEther('100'),
+  collateralAsset: '0x...',
+  collateralAmount: ethers.parseEther('50'),
+})
+console.log(`Profit: $${profit.netProfit}`)
+
+// Simulate liquidation without executing
+const simulation = await skill.simulateLiquidation({
+  targetAccount: '0x...',
+  debtAsset: '0x...',
+  collateralAsset: '0x...',
+  debtAmount: ethers.parseEther('100'),
+})
+
+// Execute real liquidation (uses flash loan)
+if (simulation.isSuccessful && simulation.estimatedProfit > 0) {
+  const result = await skill.executeLiquidation({
+    targetAccount: '0x...',
+    debtAsset: '0x...',
+    collateralAsset: '0x...',
+    debtAmount: ethers.parseEther('100'),
+  })
+  console.log(`Liquidation executed: ${result.txHash}`)
+}
+```
+
+### Via HTTP API (Both Skills)
+
+```bash
+# Health check
+curl http://localhost:3000/health
+
+# GMX: Get prices
+curl http://localhost:3000/prices/ETH
+curl http://localhost:3000/markets
+
+# GMX: Get strategy signal
+curl http://localhost:3000/analyze/ETH
+
+# Liquidation Hunter: Find opportunities
+curl http://localhost:3000/liquidation/opportunities
+
+# Liquidation Hunter: Check if account liquidatable
+curl http://localhost:3000/liquidation/check/0x...
+
+# Liquidation Hunter: Execute liquidation
+curl -X POST http://localhost:3000/liquidation/execute \
+  -H "Content-Type: application/json" \
+  -d '{
+    "targetAccount": "0x...",
+    "debtAsset": "0x...",
+    "collateralAsset": "0x...",
+    "debtAmount": "100000000000000000000"
+  }'
+```
+
 ## Core Principles
 
+### GMX V2 Trading Skill:
 1. **Always use Chainlink** for prices — no hardcoding or estimates
 2. **createOrder struct is NESTED** — `addresses{}` and `numbers{}` are sub-objects
 3. **Multicall pattern** — sendWnt + sendTokens + createOrder in one TX
@@ -147,6 +267,18 @@ console.log(`ETH/USD: $${await getPrice("ETH/USD")}`)
 6. **Orders execute in ~30 seconds** — createOrder is submission, not fill
 7. **Never hardcode secrets** — always use .env variables
 8. **Test on Sepolia first** — GMX V2 trading live on Arbitrum One only
+
+### Liquidation Hunter Skill:
+1. **Flash loans are atomic** — entire operation executes in one TX, reverts if unprofitable
+2. **Health factor must be <1** for liquidation eligibility (checked on-chain)
+3. **Profit accounting includes:**
+   - Liquidation bonus (varies by asset, ~5-10%)
+   - Flash loan fee (0.05%)
+   - Slippage on collateral sale
+   - Gas costs
+4. **Always simulate before executing** — use `simulateLiquidation()` first
+5. **Monitor gas prices** — liquidations on mainnet can be expensive
+6. **Aave V3 only** — Liquidation Hunter targets Aave V3 on Arbitrum
 
 ## Important Links
 

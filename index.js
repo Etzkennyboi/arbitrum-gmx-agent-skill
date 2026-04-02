@@ -53,6 +53,15 @@ const {
   sendWebhook,
 } = require('./skills/monitor')
 
+// Liquidation Hunter
+const {
+  checkLiquidatable,
+  calcProfit,
+  findOpportunities,
+  simulate,
+  execute,
+} = require('./skills/liquidation-hunter')
+
 // ============================================================
 // PUBLIC MODULE EXPORTS
 // ============================================================
@@ -126,8 +135,15 @@ module.exports = {
   stopAllMonitors,
   getActiveMonitors,
 
+  // Liquidation Hunter
+  checkLiquidatable,
+  calcProfit: calcProfit,
+  findOpportunities,
+  simulateLiquidation: simulate,
+  executeLiquidation: execute,
+
   // ========== METADATA ==========
   version: '1.0.0',
   name: 'arbitrum-gmx-agent-skill',
-  description: 'Give any AI agent full GMX V2 trading capabilities on Arbitrum One',
+  description: 'Production-ready AI agent skills for Arbitrum: GMX V2 trading + Liquidation Hunter on Aave V3',
 }
