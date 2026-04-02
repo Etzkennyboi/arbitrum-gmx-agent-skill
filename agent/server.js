@@ -8,6 +8,10 @@ const { GMX } = require('../lib/constants')
 
 // Import all skills
 const {
+  // Price feeds
+  getPrice,
+  getAllPrices,
+
   // Market Reader
   getAllMarkets,
   getFundingRate,
