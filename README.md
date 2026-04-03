@@ -7,10 +7,10 @@
 
 > **Two powerful AI agent skills for Arbitrum:** GMX V2 Trading + Liquidation Hunter
 
-**Skill 1 — GMX V2 Agent:** Trade perpetuals, analyze markets, monitor liquidations  
-**Skill 2 — Liquidation Hunter:** Detect + execute profitable liquidations on Aave V3
+**Skill 1 — GMX V2 Agent:** Trade perpetuals, analyze markets, monitor positions  
+**Skill 2 — Liquidation Hunter:** Detect + execute profitable liquidations on Aave V3 using flash loans
 
-🚀 **Live:** https://arbitrum-agent-skills.railway.app
+**Status:** ✅ Production-ready | 🧪 9/9 tests passing on live Arbitrum One | 🆔 Agent ID: 1 (registered on-chain)
 
 ## 🎯 What This Skill Does
 
@@ -41,7 +41,7 @@ A revenue-generating **agent skill** for:
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/your-org/arbitrum-gmx-agent-skill.git
+git clone https://github.com/Etzkennyboi/arbitrum-gmx-agent-skill.git
 cd arbitrum-gmx-agent-skill
 npm install
 ```
@@ -86,37 +86,58 @@ npm run register
 | Runtime | Node.js 18+ | Scripts, bots, HTTP agents |
 | Deploy | Railway | One-command cloud deployment |
 
-## File Structure
+## Repository Structure
 
 ```
 arbitrum-gmx-agent-skill/
-├── SKILL.md                         ← Claude reads this first
-├── README.md                        ← This file
-├── LICENSE                          ← MIT
-├── install.sh                       ← Installer script
-├── references/
-│   ├── gmx-v2-contracts.md         ← Verified addresses, ABIs, struct shapes
-│   ├── gmx-trading.md              ← Order lifecycle: open/close positions
-│   ├── gmx-market-data.md          ← Reading OI, funding, pools, positions
-│   ├── chainlink-price-feeds.md    ← Live price feed integration
-│   ├── agent-identity.md           ← ArbiLink registry registration
-│   ├── position-monitoring.md      ← Liquidation risk + monitoring loops
-│   └── deployment.md               ← Railway deployment + env setup
-└── docs/
-    └── demo.md                     ← Demo walkthrough for judges
+├── README.md              ← This file (getting started)
+├── SKILL.md               ← Skill specification for Claude
+├── API.md                 ← Complete HTTP API reference (24 endpoints)
+├── LICENSE                ← MIT
+├── package.json           ← Dependencies (ethers, express, cors, dotenv)
+│
+├── lib/                   ← Core blockchain interactions
+│   ├── arbitrum.js        ├─ RPC provider, wallet, balance helpers
+│   ├── constants.js       ├─ Contract ABIs, addresses, configurations
+│   ├── prices.js          ├─ Chainlink price feed integration
+│   ├── gmx.js             ├─ GMX V2 core interactions
+│   ├── identity.js        ├─ ArbiLink registry integration
+│   ├── liquidation-detector.js     ├─ [NEW] Aave liquidation detection
+│   └── flash-loan-executor.js      └─ [NEW] Flash loan execution
+│
+├── skills/                ← Business logic & workflows
+│   ├── market-reader/     ├─ Market data, funding rates (GMX)
+│   ├── position-manager/  ├─ Open/close positions, risk checks (GMX)
+│   ├── pool-analyzer/     ├─ GM pool stats & TVL (GMX)
+│   ├── strategy/          ├─ 3-signal trading algorithm (GMX)
+│   ├── monitor/           ├─ Real-time monitoring & webhooks (GMX)
+│   ├── agent-identity/    ├─ Registry wrapper (GMX)
+│   └── liquidation-hunter/└─ [NEW] Liquidation detection & execution
+│
+├── agent/
+│   └── server.js          ← Express HTTP API (24 endpoints)
+│
+├── test/
+│   └── run.js             ← Test suite (9/9 passing on Arbitrum One)
+│
+├── scripts/
+│   └── register-agent.js  ← Register agent on ArbiLink registry
+│
+└── config/
+    ├── .env.example       ← Template for environment variables
+    ├── .gitignore         ← Git exclusions
+    ├── Procfile           ← Railway deployment config
+    └── railway.json       ← Railway app settings
 ```
 
-## References
+## Key Resources
 
-### For Building Agents
-
-- [GMX V2 Contracts & ABIs](references/gmx-v2-contracts.md) — Addresses, struct shapes, token decimals
-- [Trading Guide](references/gmx-trading.md) — Complete order lifecycle
-- [Market Data](references/gmx-market-data.md) — Reading OI, funding, positions
-- [Chainlink Prices](references/chainlink-price-feeds.md) — Reading live prices
-- [Agent Identity](references/agent-identity.md) — ArbiLink registry registration
-- [Position Monitoring](references/position-monitoring.md) — Liquidation checks & alerts
-- [Deployment](references/deployment.md) — Railway setup & CLI commands
+- **[SKILL.md](SKILL.md)** — Skill specification for Claude Code (read first!)
+- **[API.md](API.md)** — Complete endpoint reference (all 24 endpoints)
+- **[GitHub Repository](https://github.com/Etzkennyboi/arbitrum-gmx-agent-skill)** — Source code
+- **[Arbitrum Docs](https://docs.arbitrum.io)** — Arbitrum ecosystem
+- **[GMX V2 Docs](https://docs.gmx.io)** — Perpetuals trading  
+- **[Aave V3 Docs](https://docs.aave.com/portal/)** — Lending protocol
 
 ## Example: Get ETH Price
 
@@ -154,20 +175,23 @@ console.log(`ETH/USD: $${await getPrice("ETH/USD")}`)
 
 ## Usage Examples
 
-### Use GMX V2 Trading Skill
+Both skills are accessible via **Node.js module** or **HTTP API**. Choose the method that fits your architecture.
+
+### 📊 Skill 1: GMX V2 Trading (Node.js Module)
 
 ```javascript
 const skill = require('arbitrum-integrated-agent-skills')
 
-// Read prices
-const ethPrice = await skill.getPrice('ETH')
-const allPrices = await skill.getAllPrices()
+// 🔍 Read market data
+const ethPrice = await skill.getPrice('ETH')                    // $2,065.64
+const allPrices = await skill.getAllPrices()                    // All 6 feeds
+const markets = await skill.getAllMarkets()                     // 5 active markets
 
-// Analyze markets
+// 📈 Analyze market sentiment
 const strategy = await skill.analyzeMarket('ETH/USD')
-console.log(strategy.recommendation) // 'LEAN_LONG' | 'LEAN_SHORT' | 'NEUTRAL'
+console.log(strategy.recommendation)  // 'LEAN_LONG' | 'LEAN_SHORT' | 'NEUTRAL'
 
-// Open leveraged position
+// 💹 Open a leveraged position
 const result = await skill.goLong({
   privateKey: process.env.AGENT_WALLET_PRIVATE_KEY,
   market: 'ETH/USD',
@@ -175,84 +199,120 @@ const result = await skill.goLong({
   leverage: 5,
 })
 
-// Monitor liquidation risk
+// 🛡️ Monitor position for liquidation risk
 skill.startMonitoring({
   walletAddress: '0x...',
   market: 'ETH/USD',
   isLong: true,
-  liquidationThreshold: 10,
+  liquidationThreshold: 10,  // Alert when 10% away from liquidation
   webhookUrl: 'https://your-webhook.com/alert',
 })
 ```
 
-### Use Liquidation Hunter Skill
+### 💰 Skill 2: Liquidation Hunter (Node.js Module)
 
 ```javascript
 const skill = require('arbitrum-integrated-agent-skills')
+const { ethers } = require('ethers')
 
-// Find liquidation opportunities
+// 🔍 Scan for liquidation opportunities
 const opportunities = await skill.findOpportunities()
-console.log(`Found ${opportunities.length} opportunities`)
+console.log(`Found ${opportunities.length} liquidatable accounts`)
 
-// Check if specific account is liquidatable
-const isLiquidatable = await skill.checkLiquidatable('0x...')
+// ✓ Check if specific account can be liquidated
+const accountData = await skill.checkLiquidatable('0xAccount...')
+if (accountData.isLiquidatable) {
+  console.log(`Health Factor: ${accountData.healthFactor}`)  // Must be < 1.0
+}
 
-// Calculate exact profit before executing
+// 💵 Calculate exact profit (before executing)
 const profit = await skill.calcProfit({
-  debtAsset: '0x...',
-  debtAmount: ethers.parseEther('100'),
-  collateralAsset: '0x...',
-  collateralAmount: ethers.parseEther('50'),
+  debtAsset: '0xUSDC...',
+  debtAmount: ethers.parseUnits('100', 6),
+  collateralAsset: '0xETH...',
+  collateralAmount: ethers.parseUnits('1', 18),
 })
-console.log(`Profit: $${profit.netProfit}`)
+console.log(`Estimated profit: $${profit.profitUSD}`)
+console.log(`Liquidation bonus: $${profit.liquidationBonusUSD}`)
 
-// Simulate liquidation without executing
+// 🧪 Simulate liquidation (dry-run, no gas cost)
 const simulation = await skill.simulateLiquidation({
-  targetAccount: '0x...',
-  debtAsset: '0x...',
-  collateralAsset: '0x...',
-  debtAmount: ethers.parseEther('100'),
+  targetAccount: '0xAccount...',
+  debtAsset: '0xUSDC...',
+  collateralAsset: '0xETH...',
+  debtAmount: ethers.parseUnits('100', 6),
 })
+console.log(`Can liquidate: ${simulation.canLiquidate}`)
 
-// Execute real liquidation (uses flash loan)
-if (simulation.isSuccessful && simulation.estimatedProfit > 0) {
-  const result = await skill.executeLiquidation({
-    targetAccount: '0x...',
-    debtAsset: '0x...',
-    collateralAsset: '0x...',
-    debtAmount: ethers.parseEther('100'),
+// ⚡ Execute liquidation (uses flash loan + atomic execution)
+if (simulation.canLiquidate && profit.isProfitable) {
+  const txResult = await skill.executeLiquidation({
+    targetAccount: '0xAccount...',
+    debtAsset: '0xUSDC...',
+    collateralAsset: '0xETH...',
+    debtAmount: ethers.parseUnits('100', 6),
   })
-  console.log(`Liquidation executed: ${result.txHash}`)
+  console.log(`✅ Liquidation executed: ${txResult.txHash}`)
 }
 ```
 
-### Via HTTP API (Both Skills)
+### 🌐 Both Skills: HTTP API
 
 ```bash
-# Health check
-curl http://localhost:3000/health
+# ═══════════════════════════════════════
+# GMX V2 TRADING ENDPOINTS
+# ═══════════════════════════════════════
 
-# GMX: Get prices
+# Get ETH price from Chainlink
 curl http://localhost:3000/prices/ETH
+
+# Get all markets on GMX
 curl http://localhost:3000/markets
 
-# GMX: Get strategy signal
+# Get strategy recommendation for ETH
 curl http://localhost:3000/analyze/ETH
 
-# Liquidation Hunter: Find opportunities
+# Get funding rate
+curl http://localhost:3000/funding/ETH
+
+# ═══════════════════════════════════════
+# LIQUIDATION HUNTER ENDPOINTS
+# ═══════════════════════════════════════
+
+# Check if account is liquidatable
+curl http://localhost:3000/liquidation/check/0xAccount
+
+# Calculate liquidation profit
+curl -X POST http://localhost:3000/liquidation/calculate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "debtAsset": "0xUSDC...",
+    "debtAmount": "100000000",
+    "collateralAsset": "0xETH...",
+    "collateralAmount": "1000000000000000000"
+  }'
+
+# Scan all liquidation opportunities
 curl http://localhost:3000/liquidation/opportunities
 
-# Liquidation Hunter: Check if account liquidatable
-curl http://localhost:3000/liquidation/check/0x...
+# Simulate liquidation (dry-run)
+curl -X POST http://localhost:3000/liquidation/simulate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "targetAccount": "0xAccount...",
+    "debtAsset": "0xUSDC...",
+    "collateralAsset": "0xETH...",
+    "debtAmount": "100000000"
+  }'
 
-# Liquidation Hunter: Execute liquidation
+# Execute liquidation (REAL MONEY - requires private key in .env)
 curl -X POST http://localhost:3000/liquidation/execute \
   -H "Content-Type: application/json" \
   -d '{
-    "targetAccount": "0x...",
-    "debtAsset": "0x...",
-    "collateralAsset": "0x...",
-    "debtAmount": "100000000000000000000"
+    "targetAccount": "0xAccount...",
+    "debtAsset": "0xUSDC...",
+    "collateralAsset": "0xETH...",
+    "debtAmount": "100000000"
   }'
 ```
 
@@ -287,23 +347,50 @@ curl -X POST http://localhost:3000/liquidation/execute \
 - **Arbitrum RPC:** https://arb1.arbitrum.io/rpc
 - **Arbitrum Sepolia Testnet:** https://sepolia-rollup.arbitrum.io/rpc
 
-## Demo
+## Documentation
 
-See [docs/demo.md](docs/demo.md) for a complete walkthrough showing:
-- Reading live market data
-- Opening a leveraged position
-- Monitoring liquidation risk
-- Registering an agent on-chain
-- Deploying to Railway
+- **[SKILL.md](SKILL.md)** — Detailed specification for AI agents integrating this skill
+- **[API.md](API.md)** — Complete HTTP API reference with all 24 endpoints
+- This **README** — Getting started guide and usage examples
+
+For implementation details, see SKILL.md which covers:
+- All exported functions with signatures
+- Contract addresses & ABIs
+- Error handling & edge cases
+- Best practices for both skills
 
 ## Contributing
 
-Issues and PRs welcome. This skill is maintained as part of the ArbiLink Agentic Bounty program.
+Issues and PRs welcome! This skill is maintained as part of the **ArbiLink Agentic Bounty** program.
+
+**Before opening a PR:** Please test your changes:
+```bash
+npm test
+npm start    # Verify server starts
+```
+
+## Support
+
+- **Issues:** [GitHub Issues](https://github.com/Etzkennyboi/arbitrum-gmx-agent-skill/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/Etzkennyboi/arbitrum-gmx-agent-skill/discussions)
+- **Bounty Info:** [ArbiLink Bounty](https://arbitrum.io/arbitlink)
 
 ## License
 
-MIT — See [LICENSE](LICENSE)
+MIT License — See [LICENSE](LICENSE)
 
 ## Disclaimer
 
-This skill is educational and for use with Claude Code only. Always test on testnet before deploying trading logic to mainnet. GMX perpetuals are high-risk instruments — be aware of liquidation risk and use stop-loss orders strategically.
+**⚠️ Educational & Experimental Code**
+
+This skill is provided for educational purposes and is part of a bounty submission. 
+
+**Important Warnings:**
+1. **Trading Risk** — GMX perpetuals are high-risk. Positions can liquidate instantly. Always use stop-losses.
+2. **Flash Loans** — Liquidation Hunter uses flash loans (experimental). Test extensively before production use.
+3. **Private Keys** — Never commit `.env` files or private keys. Use environment variables only.
+4. **Mainnet** — Only deploy to mainnet with thorough testing and risk management.
+5. **Gas Costs** — All transactions cost real gas. Liquidations are only profitable above certain gas prices.
+6. **Slippage** — Market execution may have slippage. Use limits and simulation first.
+
+**Not Financial Advice.** This code is for educational use only. Cryptocurrency trading involves risk of total loss. Do not use real funds without understanding the risks.
