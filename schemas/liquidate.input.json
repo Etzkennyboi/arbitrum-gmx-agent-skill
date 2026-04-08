@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "required": ["targetAccount", "debtAsset", "collateralAsset", "debtAmount"],
+  "properties": {
+    "targetAccount": {
+      "type": "string"
+    },
+    "debtAsset": {
+      "type": "string",
+      "description": "Token address of the debt to repay"
+    },
+    "collateralAsset": {
+      "type": "string",
+      "description": "Token address of the collateral to seize"
+    },
+    "debtAmount": {
+      "type": "string",
+      "description": "Amount of debt to cover (human units)"
+    }
+  }
+}

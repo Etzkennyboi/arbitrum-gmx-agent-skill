@@ -1,0 +1,19 @@
+{
+  "name": "monitor_risk",
+  "description": "Sets up an active monitor for a GMX position to alert when liquidation risk is high.",
+
+  "input_schema": "schemas/monitor-risk.input.json",
+  "output_schema": "schemas/monitor-risk.output.json",
+
+  "instructions": "instructions/monitor-risk.md",
+
+  "capabilities": {
+    "requiresSigning": false,
+    "createsTransaction": false
+  },
+
+  "execution": {
+    "type": "background",
+    "stateful": true
+  }
+}

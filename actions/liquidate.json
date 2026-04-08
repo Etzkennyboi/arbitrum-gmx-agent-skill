@@ -1,0 +1,19 @@
+{
+  "name": "liquidate_account",
+  "description": "Executes a flash loan liquidation on Aave V3 Arbitrum for a target account.",
+
+  "input_schema": "schemas/liquidate.input.json",
+  "output_schema": "schemas/liquidate.output.json",
+
+  "instructions": "instructions/liquidate.md",
+
+  "capabilities": {
+    "requiresSigning": true,
+    "createsTransaction": true
+  },
+
+  "execution": {
+    "type": "onchain",
+    "chainContext": "arbitrum-one"
+  }
+}

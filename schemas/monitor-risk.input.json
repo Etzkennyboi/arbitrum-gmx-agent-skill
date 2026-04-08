@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "required": ["walletAddress", "market", "isLong"],
+  "properties": {
+    "walletAddress": {
+      "type": "string",
+      "description": "The wallet address to monitor"
+    },
+    "market": {
+      "type": "string",
+      "description": "The market symbol or address"
+    },
+    "isLong": {
+      "type": "boolean"
+    },
+    "checkIntervalMs": {
+      "type": "number",
+      "default": 60000
+    },
+    "liquidationThreshold": {
+      "type": "number",
+      "default": 10,
+      "description": "Trigger alert if price is within X% of liquidation"
+    },
+    "webhookUrl": {
+      "type": "string",
+      "description": "Optional URL for alerts"
+    }
+  }
+}

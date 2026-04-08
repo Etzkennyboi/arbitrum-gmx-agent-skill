@@ -1,0 +1,64 @@
+{
+  "name": "arbitrum.gmx.perpetuals",
+  "version": "1.0.0",
+  "displayName": "GMX V2 Trading & Analysis",
+  "description": "Professional AI agent skill for GMX V2 perpetuals on Arbitrum. Open/close positions, monitor risk, and analyze markets.",
+
+  "author": "ArbiLink",
+  "license": "MIT",
+
+  "actions": [
+    {
+      "name": "trade_long",
+      "description": "Open a leveraged long position on GMX V2",
+      "definition": "actions/trade-long.json",
+      "handler": "handler/gmx-handler.js"
+    },
+    {
+      "name": "trade_short",
+      "description": "Open a leveraged short position on GMX V2",
+      "definition": "actions/trade-short.json",
+      "handler": "handler/gmx-handler.js"
+    },
+    {
+      "name": "close_position",
+      "description": "Close an existing GMX V2 position",
+      "definition": "actions/close-position.json",
+      "handler": "handler/gmx-handler.js"
+    },
+    {
+      "name": "analyze_market",
+      "description": "Get deep market insights including funding, OI, and AI signals",
+      "definition": "actions/analyze-market.json",
+      "handler": "handler/gmx-handler.js"
+    },
+    {
+      "name": "monitor_risk",
+      "description": "Start real-time liquidation monitoring for a wallet",
+      "definition": "actions/monitor-risk.json",
+      "handler": "handler/gmx-handler.js"
+    }
+  ],
+
+  "capabilities": {
+    "signing": true,
+    "networkAccess": true,
+    "stateful": true
+  },
+
+  "wallet": {
+    "type": "TEE",
+    "access": "injected",
+    "required": true
+  },
+
+  "api": {
+    "required": true,
+    "description": "Requires Arbitrum RPC and optional Agent Identity Registry API keys"
+  },
+
+  "execution": {
+    "mode": "deterministic",
+    "format": "json-only"
+  }
+}

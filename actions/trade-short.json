@@ -1,0 +1,19 @@
+{
+  "name": "trade_short",
+  "description": "Opens a leveraged short position on a GMX V2 market using USDC collateral.",
+
+  "input_schema": "schemas/trade-short.input.json",
+  "output_schema": "schemas/trade-short.output.json",
+
+  "instructions": "instructions/trade-short.md",
+
+  "capabilities": {
+    "requiresSigning": true,
+    "createsTransaction": true
+  },
+
+  "execution": {
+    "type": "onchain",
+    "chainContext": "arbitrum-one"
+  }
+}

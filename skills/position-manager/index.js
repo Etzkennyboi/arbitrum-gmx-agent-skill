@@ -163,30 +163,34 @@ async function checkLiquidationRisk(walletAddress, marketAddress, isLong) {
 
   const currentPrice = await getPrice(pair).then(p => p.price)
   const sizeInUsd = parseFloat(position.sizeInUsd)
+  const sizeInTokens = parseFloat(position.sizeInTokens)
   const collateral = parseFloat(position.collateralAmount)
   const leverage = sizeInUsd / collateral
 
-  // Liquidation typically occurs at ~10% loss (depends on GMX config)
-  // For conservatism, assume ~9% margin to liquidation
-  const maxLoss = collateral * 0.09
+  // Real entry price derived from contract data
+  const entryPrice = sizeInUsd / sizeInTokens
 
-  // Calculate entry price from collateral and current position
-  // This is simplified; real entry price would be stored on-chain
-  const entryPrice = currentPrice
+  // Liquidation typically occurs when loss exceeds ~90% of collateral 
+  // (leaving ~10% for the liquidator/protocol)
+  // For conservatism, we assume liquidation at 9% distance from current if no info,
+  // but better to use the 90% collateral loss formula.
+  const maxLoss = collateral * 0.9 
+  
+  // Change in price required to lose maxLoss
+  // sizeInTokens * deltaPrice = maxLoss
+  const deltaPriceToLiq = maxLoss / sizeInTokens
 
-  // Liquidation price: price at which position loses maxLoss
   let liquidationPrice
   if (isLong) {
-    // Long: liq price = entry - (maxLoss / position_size_in_tokens)
-    liquidationPrice = entryPrice * (1 - 0.09)
+    liquidationPrice = entryPrice - deltaPriceToLiq
   } else {
-    // Short: liq price = entry + (maxLoss / position_size_in_tokens)
-    liquidationPrice = entryPrice * (1 + 0.09)
+    liquidationPrice = entryPrice + deltaPriceToLiq
   }
 
-  const distancePercent = Math.abs(currentPrice - liquidationPrice) / liquidationPrice * 100
+  // Distance from current price to liquidation price
+  const distancePercent = Math.abs(currentPrice - liquidationPrice) / currentPrice * 100
 
-  // PnL approximation
+  // PnL calculation
   let pnlPercent = 0
   if (isLong) {
     pnlPercent = ((currentPrice - entryPrice) / entryPrice) * 100
@@ -194,24 +198,24 @@ async function checkLiquidationRisk(walletAddress, marketAddress, isLong) {
     pnlPercent = ((entryPrice - currentPrice) / entryPrice) * 100
   }
 
-  const pnlUsd = (pnlPercent / 100) * collateral
+  const pnlUsd = (pnlPercent / 100) * sizeInUsd
 
   // Risk level
   let riskLevel
-  if (distancePercent < 1) {
+  if (distancePercent < 2) {
     riskLevel = 'CRITICAL'
-  } else if (distancePercent < 3) {
+  } else if (distancePercent < 5) {
     riskLevel = 'HIGH'
-  } else if (distancePercent < 8) {
+  } else if (distancePercent < 15) {
     riskLevel = 'MEDIUM'
   } else {
     riskLevel = 'LOW'
   }
 
   const recommendation = riskLevel === 'CRITICAL' || riskLevel === 'HIGH'
-    ? `⚠️ CLOSE POSITION IMMEDIATELY — Liquidation only ${distancePercent.toFixed(1)}% away`
+    ? `⚠️ CLOSE POSITION IMMEDIATELY — Liquidation is ${distancePercent.toFixed(1)}% away`
     : riskLevel === 'MEDIUM'
-      ? '⚠️ Position at moderate risk — consider reducing size'
+      ? '⚠️ Position at moderate risk — consider adding collateral or reducing size'
       : '✅ Position healthy'
 
   return {

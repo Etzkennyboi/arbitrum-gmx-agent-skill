@@ -1,0 +1,17 @@
+[
+  {
+    "input": {
+      "market": "ETH",
+      "collateralUSDC": 100,
+      "leverage": 10
+    },
+    "output": {
+      "success": true,
+      "data": {
+        "txHash": "0x5a3f...",
+        "status": "pending",
+        "note": "Order created. GMX keeper will execute in ~30s"
+      }
+    }
+  }
+]

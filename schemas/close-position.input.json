@@ -1,0 +1,14 @@
+{
+  "type": "object",
+  "required": ["market", "isLong"],
+  "properties": {
+    "market": {
+      "type": "string",
+      "description": "The market symbol or address to close"
+    },
+    "isLong": {
+      "type": "boolean",
+      "description": "Whether the position to close is Long (true) or Short (false)"
+    }
+  }
+}

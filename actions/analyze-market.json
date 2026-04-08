@@ -1,0 +1,19 @@
+{
+  "name": "analyze_market",
+  "description": "Analyzes a market for trading opportunities using price, funding, and OI data.",
+
+  "input_schema": "schemas/analyze-market.input.json",
+  "output_schema": "schemas/analyze-market.output.json",
+
+  "instructions": "instructions/analyze-market.md",
+
+  "capabilities": {
+    "requiresSigning": false,
+    "createsTransaction": false
+  },
+
+  "execution": {
+    "type": "read-only",
+    "chainContext": "arbitrum-one"
+  }
+}

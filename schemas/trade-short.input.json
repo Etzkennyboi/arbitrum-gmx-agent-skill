@@ -1,0 +1,19 @@
+{
+  "type": "object",
+  "required": ["market", "collateralUSDC"],
+  "properties": {
+    "market": {
+      "type": "string",
+      "description": "The crypto symbol or market address (e.g., 'ETH', 'BTC', 'ARB')"
+    },
+    "collateralUSDC": {
+      "type": "number",
+      "description": "Amount of USDC to use as collateral"
+    },
+    "leverage": {
+      "type": "number",
+      "description": "Desired leverage (default 5.0)",
+      "default": 5.0
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "close_position",
+  "description": "Closes an existing GMX V2 position (market or limit)",
+
+  "input_schema": "schemas/close-position.input.json",
+  "output_schema": "schemas/close-position.output.json",
+
+  "instructions": "instructions/close-position.md",
+
+  "capabilities": {
+    "requiresSigning": true,
+    "createsTransaction": true
+  },
+
+  "execution": {
+    "type": "onchain",
+    "chainContext": "arbitrum-one"
+  }
+}
